@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Todo List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-buttons button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .header-buttons button:hover {
+            background-color: #2980b9;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .add-btn {
+            padding: 8px 16px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .add-btn:hover {
+            background-color: #229954;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ecf0f1;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        tr {
+            border-bottom: 1px solid #ecf0f1;
+            transition: background-color 0.2s;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tr.selected {
+            background-color: #d6eaf8;
+        }
+
+        td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        td:first-child {
+            width: 40px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+
+        .edit-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .edit-btn:hover {
+            background-color: #229954;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .undo-btn {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .undo-btn:hover {
+            background-color: #d68910;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .confirm-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            background-color: #229954;
+        }
+
+        .cancel-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background-color: #7f8c8d;
+        }
+
+        .overdue {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .early {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">simple todo list</div>
+        <div class="header-buttons">
+            <button onclick="saveToFile()">另存新檔</button>
+            <button onclick="openFile()">開啟舊檔</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">待辦清單</div>
+                <button class="add-btn" onclick="showAddModal()">新增工作</button>
+            </div>
+            <div class="table-container">
+                <table id="todoTable">
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">完成區</div>
+            </div>
+            <div class="table-container">
+                <table id="completedTable">
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">新增工作</div>
+            <div class="form-group">
+                <label>工作名稱</label>
+                <input type="text" id="taskName" placeholder="請輸入工作名稱">
+            </div>
+            <div class="form-group">
+                <label>到期時間</label>
+                <input type="datetime-local" id="dueDate">
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeAddModal()">取消</button>
+                <button class="confirm-btn" onclick="addTask()">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">編輯工作</div>
+            <div class="form-group">
+                <label>工作名稱</label>
+                <input type="text" id="editTaskName" placeholder="請輸入工作名稱">
+            </div>
+            <div class="form-group">
+                <label>到期時間</label>
+                <input type="datetime-local" id="editDueDate">
+            </div>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="closeEditModal()">取消</button>
+                <button class="confirm-btn" onclick="saveEdit()">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" style="display: none;" accept=".json" onchange="loadFromFile(event)">
+
+    <script>
+        let todos = [];
+        let completed = [];
+        let selectedRow = null;
+        let editingTaskId = null;
+
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'block';
+            document.getElementById('taskName').value = '';
+            document.getElementById('dueDate').value = '';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+
+        function showEditModal(id) {
+            const task = todos.find(t => t.id === id);
+            if (task) {
+                editingTaskId = id;
+                document.getElementById('editTaskName').value = task.name;
+                document.getElementById('editDueDate').value = task.dueDate;
+                document.getElementById('editModal').style.display = 'block';
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            editingTaskId = null;
+        }
+
+        function saveEdit() {
+            const name = document.getElementById('editTaskName').value.trim();
+            const dueDate = document.getElementById('editDueDate').value;
+
+            if (!name || !dueDate) {
+                alert('請填寫所有欄位');
+                return;
+            }
+
+            const task = todos.find(t => t.id === editingTaskId);
+            if (task) {
+                task.name = name;
+                task.dueDate = dueDate;
+                renderTodos();
+            }
+
+            closeEditModal();
+        }
+
+        function addTask() {
+            const name = document.getElementById('taskName').value.trim();
+            const dueDate = document.getElementById('dueDate').value;
+
+            if (!name || !dueDate) {
+                alert('請填寫所有欄位');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                name: name,
+                dueDate: dueDate
+            };
+
+            todos.push(task);
+            closeAddModal();
+            renderTodos();
+        }
+
+        function completeTask(id) {
+            const taskIndex = todos.findIndex(t => t.id === id);
+            if (taskIndex !== -1) {
+                const task = todos[taskIndex];
+                task.completedDate = new Date().toISOString();
+                completed.push(task);
+                todos.splice(taskIndex, 1);
+                renderTodos();
+                renderCompleted();
+            }
+        }
+
+        function uncompleteTask(id) {
+            const taskIndex = completed.findIndex(t => t.id === id);
+            if (taskIndex !== -1) {
+                const task = completed[taskIndex];
+                delete task.completedDate;
+                todos.push(task);
+                completed.splice(taskIndex, 1);
+                renderTodos();
+                renderCompleted();
+            }
+        }
+
+        function deleteTask(id, isCompleted) {
+            if (isCompleted) {
+                const index = completed.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    completed.splice(index, 1);
+                    renderCompleted();
+                }
+            } else {
+                const index = todos.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    todos.splice(index, 1);
+                    renderTodos();
+                }
+            }
+        }
+
+        function getTimeRemaining(dueDate) {
+            const now = new Date();
+            const due = new Date(dueDate);
+            const diff = due - now;
+            
+            if (diff < 0) {
+                const hours = Math.floor(Math.abs(diff) / (1000 * 60 * 60));
+                const days = Math.floor(hours / 24);
+                if (days > 0) {
+                    return `<span class="overdue">逾期 ${days} 天</span>`;
+                }
+                return `<span class="overdue">逾期 ${hours} 小時</span>`;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+            if (days > 0) {
+                return `剩餘 ${days} 天`;
+            }
+            return `剩餘 ${hours} 小時`;
+        }
+
+        function getEarlyTime(completedDate, dueDate) {
+            const completed = new Date(completedDate);
+            const due = new Date(dueDate);
+            const diff = due - completed;
+            
+            if (diff < 0) {
+                const hours = Math.floor(Math.abs(diff) / (1000 * 60 * 60));
+                const days = Math.floor(hours / 24);
+                if (days > 0) {
+                    return `<span class="overdue">遲了 ${days} 天</span>`;
+                }
+                return `<span class="overdue">遲了 ${hours} 小時</span>`;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+            if (days > 0) {
+                return `<span class="early">提前 ${days} 天</span>`;
+            }
+            return `<span class="early">提前 ${hours} 小時</span>`;
+        }
+
+        function formatDateTime(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function selectRow(row) {
+            if (selectedRow) {
+                selectedRow.classList.remove('selected');
+            }
+            row.classList.add('selected');
+            selectedRow = row;
+        }
+
+        function renderTodos() {
+            const table = document.getElementById('todoTable');
+            table.innerHTML = '';
+
+            todos.forEach(task => {
+                const row = table.insertRow();
+                row.onclick = function() { selectRow(row); };
+
+                const checkCell = row.insertCell();
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.onchange = function() { completeTask(task.id); };
+                checkCell.appendChild(checkbox);
+
+                const nameCell = row.insertCell();
+                nameCell.textContent = task.name;
+
+                const dueCell = row.insertCell();
+                dueCell.textContent = formatDateTime(task.dueDate);
+
+                const remainingCell = row.insertCell();
+                remainingCell.innerHTML = getTimeRemaining(task.dueDate);
+
+                const deleteCell = row.insertCell();
+                const actionDiv = document.createElement('div');
+                actionDiv.className = 'action-buttons';
+                
+                const editBtn = document.createElement('button');
+                editBtn.textContent = '✏️';
+                editBtn.className = 'edit-btn';
+                editBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    showEditModal(task.id);
+                };
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '🗑';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    deleteTask(task.id, false);
+                };
+                
+                actionDiv.appendChild(editBtn);
+                actionDiv.appendChild(deleteBtn);
+                deleteCell.appendChild(actionDiv);
+            });
+        }
+
+        function renderCompleted() {
+            const table = document.getElementById('completedTable');
+            table.innerHTML = '';
+
+            completed.forEach(task => {
+                const row = table.insertRow();
+                row.onclick = function() { selectRow(row); };
+
+                const undoCell = row.insertCell();
+                const undoBtn = document.createElement('button');
+                undoBtn.textContent = '取消完成';
+                undoBtn.className = 'undo-btn';
+                undoBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    uncompleteTask(task.id);
+                };
+                undoCell.appendChild(undoBtn);
+
+                const nameCell = row.insertCell();
+                nameCell.textContent = task.name;
+
+                const completedCell = row.insertCell();
+                completedCell.textContent = formatDateTime(task.completedDate);
+
+                const dueCell = row.insertCell();
+                dueCell.textContent = formatDateTime(task.dueDate);
+
+                const earlyCell = row.insertCell();
+                earlyCell.innerHTML = getEarlyTime(task.completedDate, task.dueDate);
+
+                const deleteCell = row.insertCell();
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '🗑';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    deleteTask(task.id, true);
+                };
+                deleteCell.appendChild(deleteBtn);
+            });
+        }
+
+        function saveToFile() {
+            const data = {
+                todos: todos,
+                completed: completed
+            };
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `todo-list-${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function openFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        function loadFromFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        todos = data.todos || [];
+                        completed = data.completed || [];
+                        renderTodos();
+                        renderCompleted();
+                    } catch (error) {
+                        alert('檔案格式錯誤');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        setInterval(() => {
+            renderTodos();
+            renderCompleted();
+        }, 60000);
+
+        renderTodos();
+        renderCompleted();
+    </script>
+</body>
+</html>
